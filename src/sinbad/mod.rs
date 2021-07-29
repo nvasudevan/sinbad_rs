@@ -1,7 +1,5 @@
 use std::{
-    io,
     env,
-    path::Path,
     process::Command,
     fmt,
     string::FromUtf8Error,
@@ -95,7 +93,7 @@ impl SinBAD {
 
     pub(crate) fn invoke(&self, gp: &str, lp: &str) -> Result<SinBADOutput, SinBADError> {
         let mut cmd = Command::new(&self.timeout_cmd);
-        cmd.env("ACCENT_DIR", &self.accent);
+        cmd.env("ACCENT_DIR", &self.accent_dir);
         let args: &[&str] = &[
             &self.duration.to_string(),
             &self.sinbad_cmd,

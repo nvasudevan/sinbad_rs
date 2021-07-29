@@ -1,8 +1,7 @@
 pub(crate) mod sinbad;
 use sinbad::SinBAD;
 use std::env;
-use std::env::VarError;
-use crate::sinbad::{SinBADError, SinBADOutput};
+use crate::sinbad::SinBADError;
 
 pub fn sinbad(backend: String, depth: usize, gp: &str, lp: &str, duration: usize)
     -> Result<bool, SinBADError> {
