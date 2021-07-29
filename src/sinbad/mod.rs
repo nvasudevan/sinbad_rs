@@ -52,11 +52,22 @@ impl SinBADOutput {
             err,
         }
     }
+
+    pub fn is_amb(&self) -> bool {
+        for l in self.err.split("\n") {
+            if l.contains("Grammar ambiguity detected") {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 pub(crate) struct SinBAD {
-    sinbad_py: String,
-    accent: String,
+    timeout_cmd: String,
+    duration: usize,
+    sinbad_cmd: String,
+    accent_dir: String,
     backend: String,
     depth: usize,
     weight: Option<f32>,
@@ -64,14 +75,18 @@ pub(crate) struct SinBAD {
 
 impl SinBAD {
     pub fn new(
-        sinbad_py: String,
-        accent: String,
+        timeout_cmd: String,
+        duration: usize,
+        sinbad_cmd: String,
+        accent_dir: String,
         backend: String,
         depth: usize,
         weight: Option<f32>) -> Self {
         Self {
-            sinbad_py,
-            accent,
+            timeout_cmd,
+            duration,
+            sinbad_cmd,
+            accent_dir,
             backend,
             depth,
             weight,
@@ -79,9 +94,18 @@ impl SinBAD {
     }
 
     pub(crate) fn invoke(&self, gp: &str, lp: &str) -> Result<SinBADOutput, SinBADError> {
-        let mut cmd = Command::new(&self.sinbad_py);
+        let mut cmd = Command::new(&self.timeout_cmd);
         cmd.env("ACCENT_DIR", &self.accent);
-        let args: &[&str] = &["-b", &self.backend, "-d", &self.depth.to_string(), gp, lp];
+        let args: &[&str] = &[
+            &self.duration.to_string(),
+            &self.sinbad_cmd,
+            "-b",
+            &self.backend,
+            "-d",
+            &self.depth.to_string(),
+            gp,
+            lp
+        ];
         cmd.args(args);
         let output = cmd.output()
             .map_err(|e| SinBADError::new(e.to_string()))?;
