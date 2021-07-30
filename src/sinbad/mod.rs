@@ -61,46 +61,38 @@ impl SinBADOutput {
     }
 }
 
-pub(crate) struct SinBAD {
+pub struct SinBAD {
     timeout_cmd: String,
-    duration: usize,
     sinbad_cmd: String,
     accent_dir: String,
-    backend: String,
-    depth: usize,
-    weight: Option<f32>,
 }
 
 impl SinBAD {
-    pub fn new(
-        timeout_cmd: String,
-        duration: usize,
-        sinbad_cmd: String,
-        accent_dir: String,
-        backend: String,
-        depth: usize,
-        weight: Option<f32>) -> Self {
+    pub fn new(timeout_cmd: String, sinbad_cmd: String, accent_dir: String) -> Self {
         Self {
             timeout_cmd,
-            duration,
             sinbad_cmd,
-            accent_dir,
-            backend,
-            depth,
-            weight,
+            accent_dir
         }
     }
 
-    pub(crate) fn invoke(&self, gp: &str, lp: &str) -> Result<SinBADOutput, SinBADError> {
+    pub fn invoke(
+        &self,
+        duration: usize,
+        backend: &str,
+        depth: usize,
+        gp: &str,
+        lp: &str
+    ) -> Result<SinBADOutput, SinBADError> {
         let mut cmd = Command::new(&self.timeout_cmd);
         cmd.env("ACCENT_DIR", &self.accent_dir);
         let args: &[&str] = &[
-            &self.duration.to_string(),
+            &duration.to_string(),
             &self.sinbad_cmd,
             "-b",
-            &self.backend,
+            backend,
             "-d",
-            &self.depth.to_string(),
+            &depth.to_string(),
             gp,
             lp
         ];
