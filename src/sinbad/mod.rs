@@ -1,5 +1,4 @@
 use std::{
-    env,
     process::Command,
     fmt,
     string::FromUtf8Error,
@@ -11,7 +10,7 @@ pub struct SinBADError {
 }
 
 impl SinBADError {
-    pub(crate) fn new(msg: String) -> Self {
+    pub fn new(msg: String) -> Self {
         Self {
             msg
         }
@@ -26,12 +25,6 @@ impl fmt::Display for SinBADError {
 
 impl From<FromUtf8Error> for SinBADError {
     fn from(e: FromUtf8Error) -> Self {
-        SinBADError::new(e.to_string())
-    }
-}
-
-impl From<env::VarError> for SinBADError {
-    fn from(e: env::VarError) -> Self {
         SinBADError::new(e.to_string())
     }
 }
