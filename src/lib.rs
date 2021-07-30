@@ -1,4 +1,4 @@
-pub(crate) mod sinbad;
+pub mod sinbad;
 
 use sinbad::SinBAD;
 use std::env;
