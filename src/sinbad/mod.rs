@@ -3,6 +3,7 @@ use std::{
     fmt,
     string::FromUtf8Error,
 };
+use crate::SinBADInput;
 
 #[derive(Debug)]
 pub struct SinBADError {
@@ -65,27 +66,21 @@ impl SinBAD {
         Self {
             timeout_cmd,
             sinbad_cmd,
-            accent_dir
+            accent_dir,
         }
     }
 
-    pub fn invoke(
-        &self,
-        duration: usize,
-        backend: &str,
-        depth: usize,
-        gp: &str,
-        lp: &str
-    ) -> Result<SinBADOutput, SinBADError> {
+    pub fn invoke(&self, sin_input: &SinBADInput, gp: &str, lp: &str)
+                  -> Result<SinBADOutput, SinBADError> {
         let mut cmd = Command::new(&self.timeout_cmd);
         cmd.env("ACCENT_DIR", &self.accent_dir);
         let args: &[&str] = &[
-            &duration.to_string(),
+            &sin_input.duration.to_string(),
             &self.sinbad_cmd,
             "-b",
-            backend,
+            &sin_input.backend,
             "-d",
-            &depth.to_string(),
+            &sin_input.depth.to_string(),
             gp,
             lp
         ];
@@ -95,6 +90,15 @@ impl SinBAD {
         let out = String::from_utf8(output.stdout)?;
         let err = String::from_utf8(output.stderr)?;
 
+        // println!("r_code: {}", output.status.code().unwrap_or_default());
+        // println!("err: *{}*", err);
+        // SinBAD exits with code 1 when it finds an ambiguous string.
+        // we return error for all other cases.
+        if let Some(r) = output.status.code() {
+            if r != 1 {
+                return Err(SinBADError::new(err));
+            }
+        }
         Ok(SinBADOutput::new(output.status.code(), out, err))
     }
 }
